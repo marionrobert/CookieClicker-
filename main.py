@@ -17,32 +17,40 @@ driver = webdriver.Chrome(service=service, options=options)
 driver.get("http://orteil.dashnet.org/experiments/cookie/")
 
 cookie = driver.find_element(By.ID, "cookie")
-cookie.click()
-
-money_cookies = int((driver.find_element(By.ID, "money")).get_attribute("innerText").replace(",", ""))
 
 
+while True:
+    cookie.click()
 
-money_cookies = 99000
+    # Every 5 seconds:
+    if time.time() > timeout:
 
-all_items = driver.find_elements(By.CSS_SELECTOR, "div#store div")
-all_ids_items = [item.get_attribute("id") for item in all_items]
+        money_cookies = int((driver.find_element(By.ID, "money")).get_attribute("innerText").replace(",", ""))
 
-store = {}
-for id in all_ids_items:
-    tag = driver.find_element(By.ID, f"{id}")
-    if id == "buyElder Pledge":
-        store[id] = int(tag.get_attribute("innerText").split("Puts")[0].split("-")[1].replace(",", "").strip())
-    else:
-        store[id] = int(tag.get_attribute("innerText").split("\n")[0].split("-")[1].replace(",", "").strip())
+        all_items = driver.find_elements(By.CSS_SELECTOR, "div#store div")
+        all_ids_items = [item.get_attribute("id") for item in all_items if item.get_attribute("id") != ""]
 
-id_item_to_buy = ""
+        store = {}
+        for id_item in all_ids_items:
+            tag = driver.find_element(By.ID, f"{id_item}")
+            if id_item == "buyElder Pledge":
+                store[id_item] = int(tag.get_attribute("innerText").split("Puts")[0].split("-")[1].replace(",", "").strip())
+            else:
+                store[id_item] = int(tag.get_attribute("innerText").split("\n")[0].split("-")[1].replace(",", "").strip())
 
-for item, cost in store.items():
-    if money_cookies > cost:
-        item_to_buy = item
+        id_item_to_buy = ""
+        for item, cost in store.items():
+            if money_cookies > cost:
+                id_item_to_buy = item
 
-# buy the most expensive
-driver.find_element(By.ID, f"{id_item_to_buy}").click()
+        # buy the most expensive
+        driver.find_element(By.ID, f"{id_item_to_buy}").click()
 
+        # Add another 5 seconds until the next check
+        timeout = time.time() + 5
 
+    # After 5 minutes stop the bot and check the cookies per second count.
+    if time.time() > five_min:
+        cookie_per_s = driver.find_element(By.ID, "cps").get_attribute("innerText")
+        print(cookie_per_s)
+        break
