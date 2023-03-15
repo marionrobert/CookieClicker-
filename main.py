@@ -41,7 +41,13 @@ for id in all_ids_items:
 
 print(store)
 
+item_to_buy = ""
+# select the most expensive item you can afford
+for item, cost in store.items():
+    if money_cookies > cost:
+        item_to_buy = item
 
+# buy the most expensive
 
 
 
