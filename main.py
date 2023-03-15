@@ -17,6 +17,11 @@ driver = webdriver.Chrome(service=service, options=options)
 driver.get("http://orteil.dashnet.org/experiments/cookie/")
 
 cookie = driver.find_element(By.ID, "cookie")
+all_items = driver.find_elements(By.CSS_SELECTOR, "div#store div")
+all_ids_items = [item.get_attribute("id") for item in all_items]
+store = {}
+for id_item in all_ids_items:
+    store[id_item] = 0
 
 
 while True:
@@ -27,16 +32,13 @@ while True:
 
         money_cookies = int((driver.find_element(By.ID, "money")).get_attribute("innerText").replace(",", ""))
 
-        all_items = driver.find_elements(By.CSS_SELECTOR, "div#store div")
-        all_ids_items = [item.get_attribute("id") for item in all_items if item.get_attribute("id") != ""]
-
         store = {}
         for id_item in all_ids_items:
             tag = driver.find_element(By.ID, f"{id_item}")
             if id_item == "buyElder Pledge":
-                store[id_item] = int(tag.get_attribute("innerText").split("Puts")[0].split("-")[1].replace(",", "").strip())
+                store.update({id_item: int(tag.get_attribute("innerText").split("Puts")[0].split("-")[1].replace(",", "").strip())})
             else:
-                store[id_item] = int(tag.get_attribute("innerText").split("\n")[0].split("-")[1].replace(",", "").strip())
+                store.update({id_item: int(tag.get_attribute("innerText").split("\n")[0].split("-")[1].replace(",", "").strip())})
 
         id_item_to_buy = ""
         for item, cost in store.items():
