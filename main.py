@@ -16,20 +16,17 @@ options.add_experimental_option("detach", True)
 driver = webdriver.Chrome(service=service, options=options)
 driver.get("http://orteil.dashnet.org/experiments/cookie/")
 
-# cookie = driver.find_element(By.ID, "cookie")
-# cookie.click()
-#
-#
-#
-# money_cookies = int((driver.find_element(By.ID, "money")).get_attribute("innerText"))
-#
-#
+cookie = driver.find_element(By.ID, "cookie")
+cookie.click()
+
+money_cookies = int((driver.find_element(By.ID, "money")).get_attribute("innerText").replace(",", ""))
+
+
 
 money_cookies = 99000
 
 all_items = driver.find_elements(By.CSS_SELECTOR, "div#store div")
 all_ids_items = [item.get_attribute("id") for item in all_items]
-# print(all_ids_items)
 
 store = {}
 for id in all_ids_items:
@@ -39,15 +36,13 @@ for id in all_ids_items:
     else:
         store[id] = int(tag.get_attribute("innerText").split("\n")[0].split("-")[1].replace(",", "").strip())
 
-print(store)
+id_item_to_buy = ""
 
-item_to_buy = ""
-# select the most expensive item you can afford
 for item, cost in store.items():
     if money_cookies > cost:
         item_to_buy = item
 
 # buy the most expensive
-
+driver.find_element(By.ID, f"{id_item_to_buy}").click()
 
 
